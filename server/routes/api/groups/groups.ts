@@ -421,6 +421,7 @@ router.post(
       groupUserWhere.permission = permission;
     }
 
+    // TODO: Exclude admins from group membership listing (#14066)
     const options = {
       where: groupUserWhere,
       include: [
