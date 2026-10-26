@@ -919,6 +919,34 @@ describe("#groups.add_user", () => {
     );
   });
 
+  it("should retain existing admin permission if permission is not specified", async () => {
+    const user = await buildAdmin();
+    const anotherUser = await buildUser({
+      teamId: user.teamId,
+    });
+    const group = await buildGroup({
+      teamId: user.teamId,
+    });
+    await server.post("/api/groups.add_user", user, {
+      body: {
+        id: group.id,
+        userId: anotherUser.id,
+        permission: GroupPermission.Admin,
+      },
+    });
+    const res = await server.post("/api/groups.add_user", user, {
+      body: {
+        id: group.id,
+        userId: anotherUser.id,
+      },
+    });
+    const body = await res.json();
+    expect(res.status).toEqual(200);
+    expect(body.data.groupMemberships[0].permission).toEqual(
+      GroupPermission.Admin
+    );
+  });
+
   it("should require authentication", async () => {
     const res = await server.post("/api/groups.add_user");
     expect(res.status).toEqual(401);
